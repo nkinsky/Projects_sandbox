@@ -19,3 +19,26 @@ def get_lick_data(file_loc):
     lick_df["Correct"] = lick_df["Correct"].astype(int)
 
     return lick_df
+
+
+class Alternation:
+    @staticmethod
+    def get_behavioral_data(csvfile):
+
+        # Read in metadata from first row
+        header = pd.read_csv(csvfile, nrows=0)
+        metadata = {}
+        for key, val in zip(header.columns[::2], header.columns[1::2]):
+            metadata[key] = val
+
+        # Read in
+        behav_df = pd.read_csv(csvfile, header=1)
+
+        # Eliminate any extra columns
+        behav_df = behav_df.iloc[:, ~behav_df.isnull().all(axis=0).values]
+
+        # Add in animal and session names
+        behav_df["Animal"] = metadata["Rat"]
+        behav_df["Session"] = metadata["Session"]
+
+        return behav_df
