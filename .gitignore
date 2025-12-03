@@ -136,3 +136,7 @@ dmypy.json
 # auto backup files
 .DS_store
 *.DS_store
+
+# MATLAB
+.asv
+*.asv
