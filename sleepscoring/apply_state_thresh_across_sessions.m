@@ -56,13 +56,18 @@ elseif strcmp(emg_or_motion, 'motion')
     EMGgood = SleepScoreMetrics_good.motiondata;
     EMGnew_use = SleepScoreMetrics_new.motiondata;
 
-MOVtimes = (SleepScoreMetrics_new.broadbandSlowWave(:)<swthresh_good & EMGnew(:)>EMGthresh_good);
+MOVtimes = (SleepScoreMetrics_new.broadbandSlowWave(:)<swthresh_good & EMGnew_use(:)>EMGthresh_good);
 thratio_new = SleepScoreMetrics_new.thratio(MOVtimes == 0);
 thdatarange = [min(thratio_new), max(thratio_new)];
 
 %% Third match up good thresholds to new data range after normalizing
 swthresh_new_norm = bz_NormToRange(swthresh_good, [0, 1], swdatarange);
-THthresh_new_norm = bz_NormToRange(THthresh_good, [0, 1], thdatarange);
+if all(MOVtimes)
+    THthresh_new_norm = nan;
+    disp("No immobile times detected in EMG/motion. Should be no REM, set theta_thresh = inf.")
+else
+    THthresh_new_norm = bz_NormToRange(THthresh_good, [0, 1], thdatarange);
+end
 EMGthresh_new_norm = bz_NormToRange(EMGthresh_good, [0, 1], EMGdatarange);
 
 disp(['Use swthresh=' num2str(swthresh_new_norm) 'for new session'])
@@ -105,7 +110,7 @@ subplot(2, 3, 6);
 bin_size = mean(diff(EMGhistbins));
 bins_use = EMGhistbins - bin_size / 2;
 bins_use = [bins_use, bins_use(end) + bin_size];
-histogram(EMGnew, bins_use);
+histogram(EMGnew_use, bins_use);
 xline(EMGthresh_good, 'r');
 title('EMG raw new')
 
