@@ -54,7 +54,6 @@ animal = "Finn"
 ripple_thresh = (2.5, None)  # lower thresh, upper_thresh
 animal = animal.lower()
 recordings = ["saline_1", "psilocybin", "saline_2"]
-zoom_in = True  # Zoom into main data range, may miss some outliers in scatterplot
 
 # Root folder that contains per-animal/session data
 BASE_DIR_ROOT = "/data3/Psilocybin/Recording_Rats"
