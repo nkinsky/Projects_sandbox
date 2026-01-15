@@ -1,0 +1,76 @@
+import getpass
+from pathlib import Path
+
+if "kinsky" in getpass.getuser():
+    base_dir = Path("/data3/Psilocybin/Recording_Rats")
+else:
+    assert False, "Base directory not yet set for users other than nkinsky"
+
+class Finn:
+    def __init__(self, base_dir=base_dir):
+        self.base_dir = Path(base_dir)
+        self.animal = "Finn"
+        self.sess_dict = {"Saline1": "2022_02_15_saline1",
+                          "Psilocybin": "2022_02_17_psilocybin",
+                          "Saline2": "2022_02_18_saline2"}
+
+
+class Rey:
+    def __init__(self, base_dir=base_dir):
+        self.base_dir = Path(base_dir)
+        self.animal = "Rey"
+        self.sess_dict = {"Saline1": "2022_06_01_saline1",
+                          "Psilocybin": "2022_06_02_psilocybin",
+                          "Saline2": "2022_06_03_saline2"}
+
+
+class Rose:
+    def __init__(self, base_dir=base_dir):
+        self.base_dir = Path(base_dir)
+        self.animal = "Rose"
+        self.sess_dict = {"Saline1": "2022_08_09_saline1",
+                          "Psilocybin": "2022_08_10_psilocybin",
+                          "Saline2": "2022_08_11_saline2"}
+
+
+class Finn2:
+    def __init__(self, base_dir=base_dir):
+        self.base_dir = Path(base_dir)
+        self.animal = "Finn2"
+        self.sess_dict = {"Saline1": "2023_05_24_saline1",
+                          "Psilocybin": "2023_05_25_psilocybin",
+                          "Saline2": "2023_05_26_saline2"}
+
+
+class RecDir:
+    def __init__(self, base_dir=base_dir):
+        self.base_dir = Path(base_dir)
+
+    @property
+    def finn(self):
+        return Finn(self.base_dir)
+
+    @property
+    def rey(self):
+        return Rey(self.base_dir)
+
+    @property
+    def rose(self):
+        return Rose(self.base_dir)
+
+    @property
+    def finn2(self):
+        return Finn2(self.base_dir)
+
+
+def get_psi_dir(animal_name, session_name):
+    """Get working directory for animal_name + session_name name combo.
+
+    Adjusts for upper-lower case and underscores in saline_1 and saline_2"""
+
+    animal = getattr(RecDir(), animal_name.lower())  # load in animal data session
+
+    session_name = "".join(session_name.split("_"))  # get rid of underscore
+
+    return animal.base_dir / animal.animal / animal.sess_dict[session_name.capitalize()]
+
