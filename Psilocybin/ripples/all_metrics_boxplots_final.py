@@ -50,7 +50,7 @@ plt.rcParams['ps.fonttype'] = 42
 # -----------------------------
 # User parameters
 # -----------------------------
-animal = "Finn"
+animal = "Finn2"
 ripple_thresh = (2.5, None)  # lower thresh, upper_thresh
 animal = animal.lower()
 recordings = ["saline_1", "psilocybin", "saline_2"]
@@ -66,7 +66,7 @@ chop_finn2_saline = False  # True = only use 1st hour of Finn2 saline, False = u
 finn2_append = "_1hrsalineonly" if chop_finn2_saline else ""
 
 # ... OR only use 1hr Psilocybin for all
-limit_to_1st_hr = False
+limit_to_1st_hr = True
 chop_all_append = "_allsessions1hr" if limit_to_1st_hr else ""
 finn2_append = "" if chop_all_append else finn2_append
 
@@ -211,6 +211,7 @@ for recording in recordings:
 # Combine all sessions
 # -----------------------------
 full_df = pd.concat(all_ripple_data, ignore_index=True)
+full_df.to_csv(animal_dir / "aggdata"/ f"{animal}_rpl_features_thresh{'_'.join(str(ripple_thresh[0]).split('.'))}{chop_all_append}.csv")
 
 # -----------------------------
 # Features and titles for plotting
