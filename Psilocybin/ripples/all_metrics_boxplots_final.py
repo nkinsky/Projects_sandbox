@@ -66,7 +66,7 @@ chop_finn2_saline = False  # True = only use 1st hour of Finn2 saline, False = u
 finn2_append = "_1hrsalineonly" if chop_finn2_saline else ""
 
 # ... OR only use 1hr Psilocybin for all
-limit_to_1st_hr = True
+limit_to_1st_hr = False
 chop_all_append = "_allsessions1hr" if limit_to_1st_hr else ""
 finn2_append = "" if chop_all_append else finn2_append
 
@@ -185,9 +185,9 @@ for recording in recordings:
         return stats.binned_statistic(t, x, bins=bins, statistic=get_extrema)[0][::2]
 
     srate = sess.eegfile.sampling_rate
-    rpl_epochs_flat = ripple_epochs.flatten()
+    rpl_epochs_flat = ripple_epochs2.flatten()
     rpl_traces, t = sess.eegfile.get_frames_within_epochs(
-        ripple_epochs,
+        ripple_epochs2,
         np.arange(sess.eegfile.n_channels),
         ret_time=True
     )
