@@ -11,6 +11,13 @@ if "kinsky" in getpass.getuser():
 else:
     assert False, "Base directory not yet set for users other than nkinsky"
 
+chan_dict = {
+    "Rey":   {"Saline1": 21, "Psilocybin": 21, "Saline2": 22},
+    "Finn":  {"Saline1": 27, "Psilocybin": 27, "Saline2": 27},
+    "Rose":  {"Saline1": 27, "Psilocybin": 26, "Saline2": 25},
+    "Finn2": {"Saline1": 4,  "Psilocybin": 4,  "Saline2": 4}
+}
+
 
 class Finn:
     def __init__(self, base_dir=base_dir):
@@ -83,4 +90,9 @@ def get_psi_dir(animal_name, session_name):
     session_name = "".join(session_name.split("_"))  # get rid of underscore
 
     return animal.base_dir / animal.animal / animal.sess_dict[session_name.capitalize()]
+
+def get_pyr_ch(animal_name, session_name: str in ["Saline1", "Psilocybin", "Saline2"]):
+    """Gets pyramidal cell channel to use."""
+    assert session_name in ["Saline1", "Psilocybin", "Saline2"]
+    return chan_dict[animal_name][session_name]
 
