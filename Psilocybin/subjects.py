@@ -1,15 +1,22 @@
 import getpass
 from pathlib import Path
+import platform
+from os import environ
 
 if "kinsky" in getpass.getuser():
-    base_dir = Path("/data3/Psilocybin/Recording_Rats")
+    if platform.system() == "Darwin":
+        base_dir = Path("/Users/nkinsky/Documents/UM/Working/Psilocybin/Recording_Rats")
+    elif environ["HOSTNAME"] == "lnx00004":
+        base_dir = Path("/data3/Psilocybin/Recording_Rats")
 else:
     assert False, "Base directory not yet set for users other than nkinsky"
+
 
 class Finn:
     def __init__(self, base_dir=base_dir):
         self.base_dir = Path(base_dir)
         self.animal = "Finn"
+        self.animal_num = 1
         self.sess_dict = {"Saline1": "2022_02_15_saline1",
                           "Psilocybin": "2022_02_17_psilocybin",
                           "Saline2": "2022_02_18_saline2"}
@@ -19,6 +26,7 @@ class Rey:
     def __init__(self, base_dir=base_dir):
         self.base_dir = Path(base_dir)
         self.animal = "Rey"
+        self.animal_num = 2
         self.sess_dict = {"Saline1": "2022_06_01_saline1",
                           "Psilocybin": "2022_06_02_psilocybin",
                           "Saline2": "2022_06_03_saline2"}
@@ -28,6 +36,7 @@ class Rose:
     def __init__(self, base_dir=base_dir):
         self.base_dir = Path(base_dir)
         self.animal = "Rose"
+        self.animal_num = 3
         self.sess_dict = {"Saline1": "2022_08_09_saline1",
                           "Psilocybin": "2022_08_10_psilocybin",
                           "Saline2": "2022_08_11_saline2"}
@@ -37,6 +46,7 @@ class Finn2:
     def __init__(self, base_dir=base_dir):
         self.base_dir = Path(base_dir)
         self.animal = "Finn2"
+        self.animal_num = 4
         self.sess_dict = {"Saline1": "2023_05_24_saline1",
                           "Psilocybin": "2023_05_25_psilocybin",
                           "Saline2": "2023_05_26_saline2"}
