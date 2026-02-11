@@ -51,7 +51,7 @@ plt.rcParams['ps.fonttype'] = 42
 # User parameters
 # -----------------------------
 animal = "Finn2"
-ripple_thresh = (2.5, None)  # lower thresh, upper_thresh
+ripple_thresh = (4, None)  # lower thresh, upper_thresh
 animal = animal.lower()
 recordings = ["saline_1", "psilocybin", "saline_2"]
 
@@ -66,7 +66,7 @@ chop_finn2_saline = False  # True = only use 1st hour of Finn2 saline, False = u
 finn2_append = "_1hrsalineonly" if chop_finn2_saline else ""
 
 # ... OR only use 1hr Psilocybin for all
-limit_to_1st_hr = True
+limit_to_1st_hr = False
 chop_all_append = "_allsessions1hr" if limit_to_1st_hr else ""
 finn2_append = "" if chop_all_append else finn2_append
 
