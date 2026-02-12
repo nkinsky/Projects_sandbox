@@ -66,7 +66,7 @@ chop_finn2_saline = False  # True = only use 1st hour of Finn2 saline, False = u
 finn2_append = "_1hrsalineonly" if chop_finn2_saline else ""
 
 # ... OR only use 1hr Psilocybin for all
-limit_to_1st_hr = False
+limit_to_1st_hr = True
 chop_all_append = "_allsessions1hr" if limit_to_1st_hr else ""
 finn2_append = "" if chop_all_append else finn2_append
 
@@ -137,9 +137,16 @@ for recording in recordings:
     }))
 
     # Define probe and shank structure
+    # shank = Shank().auto_generate(columns=1, contacts_per_column=32,
+    #                               xpitch=0, ypitch=50,
+    #                               channel_id=np.arange(32, 0, -1))
+
+    # NRK bugfix start
     shank = Shank().auto_generate(columns=1, contacts_per_column=32,
-                                  xpitch=0, ypitch=50,
-                                  channel_id=np.arange(32, 0, -1))
+                                  xpitch=0, ypitch=-50,
+                                  channel_id=np.arange( 0, 32, 1))
+    # NRK bugfix end
+
     shank.set_disconnected_channels(sess.recinfo.skipped_channels)
     probe = Probe(shank)
     prbgrp = ProbeGroup()
@@ -160,12 +167,21 @@ for recording in recordings:
     )
 
     # Compute peak ripple frequency
+    # NRK bugfix - this should not be necessary, should just be able to use ripple_kanali...
     # Map the absolute channel id to the index within prbgrp
     try:
+        # NRK comment: this is not necessarily a bug with the fixed ProbeGroup code above,
+        # but it was the source of the Rose issues. As originally written, the probegroup channels
+        # were ordered [31, 30, 29 ..., 2, 1]. For the psilocybin session, the ripple_kanali of 26
+        # would then retrun rpl_indx = 6, and channel 6 is a bad channel. That's why all the ripple
+        # power and frequency calculations were off.  You should be able to run this all using just
+        # the code under the Exception block below, using just the ripple_kanali directly in
+        # Ripple_get_peak_ripple_freq() below.
         rpl_idx = np.where(ripple_kanali == sess.prbgrp.channel_id)[0][0]
     except Exception:
         # Fallback to same id if channel_id is already an index
         rpl_idx = ripple_kanali
+    print([f"rpl_idx={rpl_idx}"])
 
     ripple_epochs2 = Ripple.get_peak_ripple_freq(
         sess.eegfile,
