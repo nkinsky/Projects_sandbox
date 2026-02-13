@@ -114,7 +114,7 @@ for recording in recordings:
     sess = ProcessData(diruse)
     signal = sess.eegfile.get_signal()
 
-    # Only include first hour for Finn2
+    # Only include first hour for Finn2 - DON'T USE, exclude times later in post-processing. INCLUDE PRE as well!
     if limit_to_1st_hr | (chop_finn2_saline & (animal == "finn2") & ("saline" in recording)):
         signal = signal.time_slice(t_start=0, t_stop=np.min((3600, signal.t_stop)))
 
