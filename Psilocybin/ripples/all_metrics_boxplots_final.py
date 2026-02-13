@@ -58,18 +58,6 @@ recordings = ["saline_1", "psilocybin", "saline_2"]
 # Root folder that contains per-animal/session data
 BASE_DIR_ROOT = "/data3/Psilocybin/Recording_Rats"
 
-# Set how you want to deal with different lengths between saline and psilocybin sessions
-# (Finn, Rey, Rose all had ~1hr saline and ~4hr Psilocybin, shorter for Rose though due to disconnects)
-
-# Cut down Finn2 saline to 1hr?
-chop_finn2_saline = False  # True = only use 1st hour of Finn2 saline, False = use all
-finn2_append = "_1hrsalineonly" if chop_finn2_saline else ""
-
-# ... OR only use 1hr Psilocybin for all
-limit_to_1st_hr = True
-chop_all_append = "_allsessions1hr" if limit_to_1st_hr else ""
-finn2_append = "" if chop_all_append else finn2_append
-
 # -----------------------------
 # Channel map per animal and session
 # -----------------------------
@@ -113,10 +101,6 @@ for recording in recordings:
     # Load session with neuropy
     sess = ProcessData(diruse)
     signal = sess.eegfile.get_signal()
-
-    # Only include first hour for Finn2 - DON'T USE, exclude times later in post-processing. INCLUDE PRE as well!
-    if limit_to_1st_hr | (chop_finn2_saline & (animal == "finn2") & ("saline" in recording)):
-        signal = signal.time_slice(t_start=0, t_stop=np.min((3600, signal.t_stop)))
 
     # Load artifact file (contains artifact epochs)
     animal_cap = animal.capitalize()
@@ -227,7 +211,7 @@ for recording in recordings:
 # Combine all sessions
 # -----------------------------
 full_df = pd.concat(all_ripple_data, ignore_index=True)
-full_df.to_csv(animal_dir / "aggdata"/ f"{animal}_rpl_features_thresh{'_'.join(str(ripple_thresh[0]).split('.'))}{chop_all_append}.csv")
+full_df.to_csv(animal_dir / "aggdata"/ f"{animal}_rpl_features_thresh{'_'.join(str(ripple_thresh[0]).split('.'))}.csv")
 
 # -----------------------------
 # Features and titles for plotting
