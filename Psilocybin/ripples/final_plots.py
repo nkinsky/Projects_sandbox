@@ -149,12 +149,15 @@ for animal in animals:
         if len(ripple_epochs) == 0:
             continue
 
-       
-        try:
-            rpl_idx_in_signal = np.where(sess.prbgrp.channel_id == ripple_channel_id)[0][0]
-        except Exception:
-            print("Error selecting rpl_idx_in_signal")
-            rpl_idx_in_signal = ripple_channel_id
+        # NRK bugfix: these lines were selecting the wrong channel for calculating ripple frequency and power.
+        # The bugfix above on lines 133-135 also fixes this issue. However, the line below under the 'try' statement
+        # is not necessary so I have commented it out. Setting the rpl_idx directly as the ripple_channel_id ensures that we are
+        # always selecting the correct channel.
+        # try:
+        #    rpl_idx_in_signal = np.where(sess.prbgrp.channel_id == ripple_channel_id)[0][0]
+        # except Exception:
+        #    print("Error selecting rpl_idx_in_signal")
+        rpl_idx_in_signal = ripple_channel_id  
         print([f"rpl_idx={rpl_idx_in_signal}, should match ripple channel {ripple_channel_id}!"])  # NRK debug add
 
         ripple_res = Ripple.get_peak_ripple_freq(
@@ -324,3 +327,4 @@ if group_ripple_data:
 else:
 
     print("No data found: group_ripple_data is empty.")
+
