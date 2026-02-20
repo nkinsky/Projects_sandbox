@@ -129,7 +129,7 @@ for animal in animals:
         # chan_ids = np.arange(32, 0, -1)
         # shank = Shank().auto_generate(columns=1, contacts_per_column=32, channel_id=chan_ids)
 
-        # NRK bugfix for the above is on the next two lines.
+        # NRK bugfix for the above is on the next three lines.
         chan_ids = np.arange(0, 32, 1)
         shank = Shank().auto_generate(columns=1, contacts_per_column=32, xpitch=0, ypitch=-50, channel_id=chan_ids)
         shank.set_disconnected_channels(sess.recinfo.skipped_channels) # NRK be sure to keep this in.
@@ -322,4 +322,5 @@ if group_ripple_data:
 
     print(f"Successfully completed. PDF: {final_pdf}")
 else:
+
     print("No data found: group_ripple_data is empty.")
