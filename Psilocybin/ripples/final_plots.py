@@ -132,7 +132,7 @@ for animal in animals:
         # NRK bugfix for the above is on the next two lines.
         chan_ids = np.arange(0, 32, 1)
         shank = Shank().auto_generate(columns=1, contacts_per_column=32, xpitch=0, ypitch=-50, channel_id=chan_ids)
-
+        shank.set_disconnected_channels(sess.recinfo.skipped_channels) # NRK be sure to keep this in.
         sess.prbgrp = ProbeGroup()
         sess.prbgrp.add_probe(Probe(shank))
 
