@@ -73,16 +73,18 @@ elseif strcmp(emg_or_motion, 'motion')
     EMGhist = SleepScoreMetrics_good.histsandthreshs.MotionHist;
     EMGgood = SleepScoreMetrics_good.motiondata;
     EMGnew_use = SleepScoreMetrics_new.motiondata;
+end
 
 MOVtimes = (SleepScoreMetrics_new.broadbandSlowWave(:)<swthresh_good & EMGnew_use(:)>EMGthresh_good);
 thratio_new = SleepScoreMetrics_new.thratio(MOVtimes == 0);
+if all(MOVtimes); allmotion = true; else; allmotion = false; end
 thdatarange = [min(thratio_new), max(thratio_new)];
 
 %% Third match up good thresholds to new data range after normalizing
 swthresh_new_norm = bz_NormToRange(swthresh_good, [0, 1], swdatarange);
 if all(MOVtimes)
     THthresh_new_norm = nan;
-    disp("No immobile times detected in EMG/motion. Should be no REM, set theta_thresh = inf.")
+    disp("No immobile times detected in EMG/motion. Should be no REM, set theta_thresh = 0.99.")
 else
     THthresh_new_norm = bz_NormToRange(THthresh_good, [0, 1], thdatarange);
 end
@@ -188,10 +190,15 @@ thratio_new_orig = SleepScoreMetrics_new.thratio(MOVtimes_orig == 0);
 %     [0,1], SleepScoreMetrics_new.histsandthreshs.THhistbins([1, end]));
 THthresh_orig_norm = bz_NormToRange(SleepScoreMetrics_new.histsandthreshs.THthresh, ...
     [0,1], [min(thratio_new_orig), max(thratio_new_orig)]);
-histogram(bz_NormToRange(thratio_new_orig, [0, 1]), ...
-    bz_NormToRange(SleepScoreMetrics_new.histsandthreshs.THhistbins, [0, 1], thdatarange));
-hn = xline(THthresh_new_norm, 'r');
-horig = xline(THthresh_orig_norm, 'g--');
+if all(MOVtimes)
+    text(0.1, 0.5, "All EMG values are high. No REM.")
+    text(0.1, 0.3, "Set theta thresh = 0.99999")
+else
+    histogram(bz_NormToRange(thratio_new_orig, [0, 1]), ...
+        bz_NormToRange(SleepScoreMetrics_new.histsandthreshs.THhistbins, [0, 1], thdatarange));
+    hn = xline(THthresh_new_norm, 'r');
+    horig = xline(THthresh_orig_norm, 'g--');
+end
 xlabel('TH / all ratio')
 ylabel('Count')
 title('New session: normalized values')
