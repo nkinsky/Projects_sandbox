@@ -18,7 +18,6 @@ from Psilocybin import subjects
 
 print(f"HVS_Detection.py Path module={Path.__module__} and pathlib.__file__ = {pathlib.__file__}")
 
-
 chan_dict = {
     "Rey":   {"Saline1": 21, "Psilocybin": 21, "Saline2": 21},
     "Finn":  {"Saline1": 27, "Psilocybin": 27, "Saline2": 27},
@@ -185,8 +184,6 @@ def detect_hvs_epochs(
     else:
         return epochs, power_high, power_low
 
-
-
 def plot_hvs_epochs(epochs, ax=None, color='red', alpha=0.5, label='HVS'):
     """
     Plot HVS epochs over time.
@@ -226,47 +223,48 @@ def plot_hvs_epochs(epochs, ax=None, color='red', alpha=0.5, label='HVS'):
 
     return ax
 
-# signal = Signal(traces=np.random.randn(1, 100000), sampling_rate=1250, channel_id=[0])
-# hvs_epochs = detect_hvs_epochs(signal)
-# plot_hvs_epochs(hvs_epochs)
-# plt.show()
-# plot_hvs_epochs(hvs_epochs)
+if __name__ == "__main__":
+    # signal = Signal(traces=np.random.randn(1, 100000), sampling_rate=1250, channel_id=[0])
+    # hvs_epochs = detect_hvs_epochs(signal)
+    # plot_hvs_epochs(hvs_epochs)
+    # plt.show()
+    # plot_hvs_epochs(hvs_epochs)
 
-animal_name = "Rey"
-session_name = "Saline1"
-animal_dir = subjects.get_psi_dir(animal_name, session_name)
-# fig, ax = plt.subplots(1, 3, figsize=(11.3, 1.2))
-# fig.suptitle(animal_name)
-# ax[0].set_title("Saline1")
-# ax[1].set_title("Psilocybin")
-# ax[2].set_title("Saline2")
+    animal_name = "Rey"
+    session_name = "Saline1"
+    animal_dir = subjects.get_psi_dir(animal_name, session_name)
+    # fig, ax = plt.subplots(1, 3, figsize=(11.3, 1.2))
+    # fig.suptitle(animal_name)
+    # ax[0].set_title("Saline1")
+    # ax[1].set_title("Psilocybin")
+    # ax[2].set_title("Saline2")
 
-xml_file = sorted(animal_dir.glob("*.xml"))[0]
+    xml_file = sorted(animal_dir.glob("*.xml"))[0]
 
-thresh2 = (4, None)
-recinfo = NeuroscopeIO(xml_file)
-eeg_file = recinfo.eeg_filename
+    thresh2 = (4, None)
+    recinfo = NeuroscopeIO(xml_file)
+    eeg_file = recinfo.eeg_filename
 
-# Load signal from binary file
-pyr_channel = chan_dict[animal_name]["Psilocybin"]
-# loader = BinarysignalIO(r'D:\data\Nat\Psilocybin\Recording_Rats\Finn\2022_02_17_psilocybin\2022_02_17_psilocybin.eeg', dtype="int16", n_channels=35, sampling_rate=1250)
-# signal = loader.get_signal(channel_indx=pyr_channel)
-eegfile = BinarysignalIO(recinfo.eeg_filename, dtype="int16", n_channels=recinfo.n_channels, sampling_rate=recinfo.eeg_sampling_rate)
-signal = eegfile.get_signal(channel_indx=pyr_channel)
+    # Load signal from binary file
+    pyr_channel = chan_dict[animal_name]["Psilocybin"]
+    # loader = BinarysignalIO(r'D:\data\Nat\Psilocybin\Recording_Rats\Finn\2022_02_17_psilocybin\2022_02_17_psilocybin.eeg', dtype="int16", n_channels=35, sampling_rate=1250)
+    # signal = loader.get_signal(channel_indx=pyr_channel)
+    eegfile = BinarysignalIO(recinfo.eeg_filename, dtype="int16", n_channels=recinfo.n_channels, sampling_rate=recinfo.eeg_sampling_rate)
+    signal = eegfile.get_signal(channel_indx=pyr_channel)
 
-# Load in artifact.npy file for each session as "art_epochs"
-art_epochs = Epoch(epochs=None, file=sorted(animal_dir.glob("*.artifact.npy"))[0])
-hvs_epochs = detect_hvs_epochs(signal, ignore_epochs=art_epochs, thresh2=thresh2)
-hvs_epochs.save(recinfo.eeg_filename.with_suffix(".hvs_epochs.npy"))  # save to .npy file for NeuroPy
-recinfo.write_epochs(hvs_epochs, f'hv{thresh2[0]}')
+    # Load in artifact.npy file for each session as "art_epochs"
+    art_epochs = Epoch(epochs=None, file=sorted(animal_dir.glob("*.artifact.npy"))[0])
+    hvs_epochs = detect_hvs_epochs(signal, ignore_epochs=art_epochs, thresh2=thresh2)
+    hvs_epochs.save(recinfo.eeg_filename.with_suffix(".hvs_epochs.npy"))  # save to .npy file for NeuroPy
+    recinfo.write_epochs(hvs_epochs, f'hv{thresh2[0]}')
 
-plot_hvs_epochs(hvs_epochs)
-plt.show()
+    plot_hvs_epochs(hvs_epochs)
+    plt.show()
 
-# # Plot using seaborn stripplot
-# plt.figure(figsize=(10, 6))
-# sns.stripplot(data=df, x="session", y="total_hvs_time", hue="animal", dodge=True)
-# plt.title("Total HVS Time in First Hour Post-Injection")
-# plt.xlabel("Session")
-# plt.ylabel("Total HVS Time (seconds)")
-# plt.legend(title="Animal")
+    # # Plot using seaborn stripplot
+    # plt.figure(figsize=(10, 6))
+    # sns.stripplot(data=df, x="session", y="total_hvs_time", hue="animal", dodge=True)
+    # plt.title("Total HVS Time in First Hour Post-Injection")
+    # plt.xlabel("Session")
+    # plt.ylabel("Total HVS Time (seconds)")
+    # plt.legend(title="Animal")
