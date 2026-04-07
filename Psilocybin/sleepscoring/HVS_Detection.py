@@ -1,5 +1,6 @@
 import numpy as np
 from pathlib import Path
+import pathlib
 import matplotlib.pyplot as plt
 
 plt.rcParams["pdf.fonttype"] = 42
@@ -15,6 +16,8 @@ from neuropy.io.binarysignalio import BinarysignalIO
 
 from Psilocybin import subjects
 
+print(f"HVS_Detection.py Path module={Path.__module__} and pathlib.__file__ = {pathlib.__file__}")
+
 
 chan_dict = {
     "Rey":   {"Saline1": 21, "Psilocybin": 21, "Saline2": 21},
@@ -25,16 +28,6 @@ chan_dict = {
 
 # animal_dir = Path(r"D:\data\Nat\Psilocybin\Recording_Rats\Rose\2022_08_10_psilocybin")
 # sessions = ["saline1", "psilocybin", "saline2"]
-animal_name = "Rey"
-session_name = "Saline1"
-animal_dir = subjects.get_psi_dir(animal_name, session_name)
-# fig, ax = plt.subplots(1, 3, figsize=(11.3, 1.2))
-# fig.suptitle(animal_name)
-# ax[0].set_title("Saline1")
-# ax[1].set_title("Psilocybin")
-# ax[2].set_title("Saline2")
-
-xml_file = sorted(animal_dir.glob("*.xml"))[0]
 
 def get_good_times(basedir):
     basedir = Path(basedir)
@@ -61,6 +54,7 @@ def detect_hvs_epochs(
     mergedist=0.10,
     sigma=0.125,
     ignore_epochs: Epoch = None,
+    return_power = False,
     basedir = None,
 ):
     """
@@ -142,7 +136,7 @@ def detect_hvs_epochs(
         ignore_times = None
 
     # Detect spindles in high frequency band (10-20 Hz)
-    epochs_high = _detect_freq_band_epochs(
+    epochs_high, power_high = _detect_freq_band_epochs(
         signals=traces,
         freq_band=freq_band,
         thresh=thresh,
@@ -153,11 +147,12 @@ def detect_hvs_epochs(
         fs=signal.sampling_rate,
         sigma=sigma,
         ignore_times=ignore_times,
+        return_power=return_power,
     )
     epochs_high = epochs_high.shift(dt=signal.t_start)
 
     # Detect events in low frequency band (4-9 Hz) with higher threshold
-    epochs_low = _detect_freq_band_epochs(
+    epochs_low, power_low = _detect_freq_band_epochs(
         signals=traces,
         freq_band=freq_band2,
         thresh=thresh2,
@@ -168,6 +163,7 @@ def detect_hvs_epochs(
         fs=signal.sampling_rate,
         sigma=sigma,
         ignore_times=ignore_times,
+        return_power=return_power,
     )
     epochs_low = epochs_low.shift(dt=signal.t_start)
 
@@ -183,7 +179,12 @@ def detect_hvs_epochs(
         epochs = Epoch.from_boolean_array(np.bitwise_and(bool1, bool2), times)
     epochs.metadata = dict(channels=selected_chans, freq_band=freq_band, freq_band2=freq_band2)
     print(f"Detected {len(epochs_high)} high-band spindles, {len(epochs_low)} low-band events, {len(epochs)} HVS epochs after intersection.")
-    return epochs
+
+    if not return_power:
+        return epochs
+    else:
+        return epochs, power_high, power_low
+
 
 
 def plot_hvs_epochs(epochs, ax=None, color='red', alpha=0.5, label='HVS'):
@@ -230,6 +231,17 @@ def plot_hvs_epochs(epochs, ax=None, color='red', alpha=0.5, label='HVS'):
 # plot_hvs_epochs(hvs_epochs)
 # plt.show()
 # plot_hvs_epochs(hvs_epochs)
+
+animal_name = "Rey"
+session_name = "Saline1"
+animal_dir = subjects.get_psi_dir(animal_name, session_name)
+# fig, ax = plt.subplots(1, 3, figsize=(11.3, 1.2))
+# fig.suptitle(animal_name)
+# ax[0].set_title("Saline1")
+# ax[1].set_title("Psilocybin")
+# ax[2].set_title("Saline2")
+
+xml_file = sorted(animal_dir.glob("*.xml"))[0]
 
 thresh2 = (4, None)
 recinfo = NeuroscopeIO(xml_file)

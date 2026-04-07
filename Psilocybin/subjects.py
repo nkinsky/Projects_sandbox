@@ -1,12 +1,17 @@
 import getpass
 from pathlib import Path
+import pathlib
 import platform
 from os import environ
+
+print(f"subjects.py Path module={Path.__module__} and pathlib.__file__ = {pathlib.__file__}")
 
 if "kinsky" in getpass.getuser():
     if platform.system() == "Darwin":
         base_dir = Path("/Users/nkinsky/Documents/UM/Working/Psilocybin/Recording_Rats")
-    elif environ["HOSTNAME"] == "lnx00004":
+    elif platform.system() == "Windows":
+        base_dir = Path(r"D:\data\Nat\Psilocybin\Recording_Rats")
+    elif ("HOSTNAME" in environ.keys()) and (environ["HOSTNAME"] == "lnx00004"):
         base_dir = Path("/data3/Psilocybin/Recording_Rats")
 else:
     assert False, "Base directory not yet set for users other than nkinsky"
