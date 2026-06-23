@@ -84,32 +84,34 @@ for animal in animals:
             hvs_epochs = hvs_epochs.shift(-inj_time)
 
             # Filter to first hour (0-3600 seconds)
-            hvs_epochs = hvs_epochs.time_slice(0, np.min((3600, hvs_epochs.stops.max())))
+            post_length_use = np.min((3600, hvs_epochs.stops.max()))
+            hvs_epochs = hvs_epochs.time_slice(0, post_length_use)
 
             # Sum durations for entire session
             total_hvs_time = hvs_epochs.durations.sum()
             print(f"Total HVS time: {total_hvs_time}")
 
             # Get session duration from eeg file
-            xml_file = sorted(base_dir.glob("*.xml"))[0]
-            recinfo = NeuroscopeIO(xml_file)
-            # Calculate duration from file size: size / (bytes_per_sample * n_channels) / sampling_rate
-            file_size = recinfo.eeg_filename.stat().st_size
-            bytes_per_sample = 2  # int16
-            n_samples = file_size / (bytes_per_sample * recinfo.n_channels)
-            duration = n_samples / recinfo.eeg_sampling_rate
-            print(f"Session duration: {duration}")
+            # xml_file = sorted(base_dir.glob("*.xml"))[0]
+            # recinfo = NeuroscopeIO(xml_file)
+            # # Calculate duration from file size: size / (bytes_per_sample * n_channels) / sampling_rate
+            # file_size = recinfo.eeg_filename.stat().st_size
+            # bytes_per_sample = 2  # int16
+            # n_samples = file_size / (bytes_per_sample * recinfo.n_channels)
+            # duration = n_samples / recinfo.eeg_sampling_rate
+            # print(f"Session duration: {duration}")
 
             # Calculate proportion as percentage
-            proportion = (total_hvs_time / duration) * 100
+            proportion = (total_hvs_time / post_length_use) * 100
             print(f"Proportion: {proportion}%")
 
             # Append to data
             data.append({
                 "animal": animal,
                 "animal_num": get_animal_num(animal),
-                "session": session_lower,
-                "proportion": proportion
+                "session": session,
+                "proportion": proportion,
+                "total_hvs_time": total_hvs_time
             })
         except Exception as e:
             print(f"Error processing {hvs_file}: {e}")
@@ -126,14 +128,32 @@ print(df.head())
 if df.empty:
     print("No data collected to plot")
 else:
-    plt.figure(figsize=(3, 2.5), layout='tight')
+    fig1 = plt.figure(figsize=(3, 2.5), layout='tight')
     # Define custom palette for more distinct colors
     custom_palette = {1: 'blue', 2: 'red', 3: 'green', 4: 'orange'}
     sns.stripplot(data=df, x="session", y="proportion", hue="animal_num", dodge=True, palette=custom_palette)
-    plt.title("Proportion of Time Spent in HVS")
-    plt.xlabel("Session")
-    plt.ylabel("Proportion of Time in HVS (%)")
-    plt.legend(title="Animal Number")
+    plt.title("1st Hour Post-Injection")
+    plt.ylabel("HVS Time (%)")
     sns.despine(ax=plt.gca())
-    plt.savefig(plot_dir / "HVSTotalPlot.pdf")
+    fig1.savefig(plot_dir / "HVSTotalPlot_percent.pdf")
+
+    fig2 = plt.figure(figsize=(3, 2.5), layout='tight')
+    # Define custom palette for more distinct colors
+    custom_palette = {1: 'blue', 2: 'red', 3: 'green', 4: 'orange'}
+    sns.stripplot(data=df, x="session", y="total_hvs_time", hue="animal_num", dodge=True, palette=custom_palette)
+    plt.title("Total HVS 1st Hour Post-Injection")
+    plt.ylabel("HVS labllafjfdbanTime (s)")
+    sns.despine(ax=plt.gca())
+    fig2.savefig(plot_dir / "HVSTotalPlot.pdf")
+
     plt.show()
+
+# Run Stats
+from scipy.stats import mannwhitneyu
+sal1 = df[df.session == "Saline1"].proportion.values
+sal2 = df[df.session == "Saline2"].proportion.values
+psi = df[df.session == "Psilocybin"].proportion.values
+print("Running Stats")
+print(f"Saline1 v Psilocybin 2-sided MWU: {mannwhitneyu(sal1, psi)}")
+print(f"Saline2 v Psilocybin 2-sided MWU: {mannwhitneyu(sal2, psi)}")
+print(f"Saline1 v Saline2 2-sided MWU: {mannwhitneyu(sal1, sal2)}")
