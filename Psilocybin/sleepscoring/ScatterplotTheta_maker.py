@@ -32,7 +32,7 @@ thresh_dict = {"Finn": {"sw": 1.0212, "theta": 0.5943, "emg": 0.0796},
 # Collect all data to compute global limits
 sess_dirs = [sorted((base_dir / animal_name).glob(f"*_{session_type}"))[0] for base_dir, session_type in zip(base_dirs, sessions)]
 all_df = pd.concat([SleepScoreIO(sess_dir).read_metrics() for sess_dir in sess_dirs])
-all_df = all_df[~all_df['badtimes']]
+all_df = all_df[all_df['goodtimes']]
 x_min = all_df[x_feature].min()
 x_max = all_df[x_feature].max()
 y_min = all_df[y_feature].min()
@@ -60,7 +60,7 @@ for idx, (base_dir, session_type, title) in enumerate(zip(base_dirs, sessions, t
     metrics_df['sleepstate'] = 'unknown'
     metrics_df.loc[inside_bool, 'sleepstate'] = sleepstates
 
-    metrics_df = metrics_df[~metrics_df['badtimes']]
+    metrics_df = metrics_df[metrics_df['goodtimes']]
     #Create Palette
     palette = {
     'active': 'blue',
