@@ -13,11 +13,16 @@ from Psilocybin.subjects import get_animal_num
 
 consolidate_wake = True  # if True, combine "quiet" and "active" into "wake"
 unit = "h"  # "s" = seconds or "h" = hours
-rec_dir = Path("/Users/nkinsky/Documents/UM/Working/Psilocybin/Recording_Rats")
-plot_dir = Path("/Users/nkinsky/Library/CloudStorage/Dropbox-UniversityofMichigan/Nathaniel Kinsky/Manuscripts/Psilocybin/plots")
+# Windows computer Rm 3311 paths here
+rec_dir = Path(r"D:\data\Nat\Psilocybin\Recording_Rats_sleepstates_2026_07_02")
+plot_dir = Path(r"D:\data\Nat\Psilocybin\Recording_Rats_sleepstates_2026_07_02")
+
+# Nat Mac Laptop paths below
+# rec_dir = Path("/Users/nkinsky/Documents/UM/Working/Psilocybin/Recording_Rats")
+# plot_dir = Path("/Users/nkinsky/Library/CloudStorage/Dropbox-UniversityofMichigan/Nathaniel Kinsky/Manuscripts/Psilocybin/plots")
 
 sessions = ["saline1", "psilocybin", "saline2"]
-animal_name = "Rey"
+animal_name = "Finn2"
 animal_dir = rec_dir / animal_name
 fig, ax = plt.subplots(1, 3, figsize=(8.5, 0.9))
 fig.suptitle(f"Animal {get_animal_num(animal_name)}")
@@ -71,4 +76,4 @@ for ids, session_name in enumerate(sessions):
 
 match_axis_lims(ax, "x")
 plt.show()
-fig.savefig(plot_dir / f"{animal_name}_hypnogramsnew.pdf")
+fig.savefig(plot_dir / f"{animal_name}_hypnogramsnew_qc.pdf")
