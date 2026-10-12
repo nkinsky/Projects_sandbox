@@ -13,7 +13,10 @@ from Psilocybin.subjects import get_animal_num
 # Define directories and animal
 primary_dir = Path(r"D:\data\Nat\Psilocybin\Recording_Rats")
 secondary_dir = Path(r"D:\data\Nat\Alternation\Recording_Rats")
-animal_name = "Rey"
+animal_name = "Rose"
+merge_qw = True # If False, keep QW and active/wake separate. Otherwise combine them all into WAKE / active.
+
+qw_color = 'blue' if merge_qw else 'yellow'
 
 x_feature, y_feature = "slowwave", "EMG"
 
@@ -26,9 +29,16 @@ if animal_name == "Finn2":
     sessions, titles, base_dirs = sessions[1:], titles[1:], base_dirs[1:]
 
 thresh_dict = {"Finn": {"sw": 1.0212, "theta": 0.5943, "emg": 0.0796},
-               "Rose": {"sw": 1.1079, "theta": 0.48, "emg": 0.0466},
-               "Rey": {"sw": 1.12, "theta": 0.5784, "emg": 0.1068},
-               "Finn2": {"sw": 0.9503, "theta": 0.4994, "emg": 0.1254}}
+               "Rose": {"sw": 1.0549, "theta": 0.48, "emg": [0.19, 0.11, 0.109, 0.13]},
+               "Rey": {"sw": 1.0493, "theta": 0.5784, "emg": 0.1068},
+               "Finn2": {"sw": 0.97, "theta": 0.4994, "emg": 0.1254}}
+
+# SW threshold should be roughly the same across all sessions to ensure apples-to-apples comparison for NREM amounts, others can differ.
+# Make metrics into a list for plotting if thresholds differ between sessions.
+for metric in ['theta', 'emg']:
+    if isinstance(thresh_dict[animal_name][metric], float):
+        thresh_dict[animal_name][metric] = [thresh_dict[animal_name][metric]]*len(sessions)
+
 
 # Collect all data to compute global limits
 sess_dirs = [sorted((base_dir / animal_name).glob(f"*_{session_type}"))[0] for base_dir, session_type in zip(base_dirs, sessions)]
@@ -58,13 +68,18 @@ for idx, (base_dir, session_type, title) in enumerate(zip(base_dirs, sessions, t
     metrics_df.loc[inside_bool, 'sleepstate'] = sleepstates
 
     metrics_df = metrics_df[metrics_df['goodtimes']]
+
+    # fix naming for QWstate if off
+    if "QWstate" in metrics_df.sleepstate.unique():
+        metrics_df.loc[metrics_df.sleepstate == "QWstate", "sleepstate"] = "QWakestate"
+
     #Create Palette
     palette = {
     'active': 'blue',
     'rem': 'red',
     'nrem': 'green',
-    'quiet': 'yellow',
-    'QWakestate': 'yellow',
+    'quiet': qw_color,
+    'QWakestate': qw_color,
     'unknown': 'grey',
     }
 
@@ -84,7 +99,7 @@ for idx, (base_dir, session_type, title) in enumerate(zip(base_dirs, sessions, t
 
    # Add threshold lines
     ax[idx].axvline(x=thresh_dict[animal_name]['sw'], color='black', linestyle='--')
-    ax[idx].axhline(y=thresh_dict[animal_name]['emg'], color='black', linestyle='--')
+    ax[idx].axhline(y=thresh_dict[animal_name]['emg'][idx], color='black', linestyle='--')
 
 # Add custom legend
 legend_states = ['active', 'rem', 'nrem', 'quiet', 'unknown']
