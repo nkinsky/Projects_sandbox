@@ -15,6 +15,14 @@ function [swthresh_new_norm, EMGthresh_new_norm, THthresh_new_norm] = apply_stat
 % don't exclude nrem times by default
 if nargin < 3
     exclude_nrem_times = false;
+
+end
+
+% grab from pwd
+if basename_new_session == false
+    [~, n, ~] = fileparts(pwd);
+    basename_new_session = fullfile(pwd, n);
+    disp(['Using new session from :', basename_new_session])
 end
 
 %% First run good_session through ClusterStates_GetMetrics without normalizing EMG, SW, and theta arrays
